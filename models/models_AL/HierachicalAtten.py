@@ -50,23 +50,10 @@ class HierachicalAtten(nn.Module):
         self.SM = nn.Softmax(dim=1)
 
     def forward(self, input):
-        # print("Hierachical Attention......")
-        # input = self.dropout(input)
-        # print("input size", input.size())
         mlp_out = F.tanh(self.MLP_linear(input))     ##  B * T * H
-        # print("mlp_size", mlp_out.size())
-        # a = mlp_out.matmul(self.context_vector)
-        # print(a.size())
-        # score = self.SM(mlp_out.matmul(self.context_vector))  ##  B * T * 1
-        # score = self.SM(self.context_vector)  ##  B * T * 1
-        # score = self.SM(self.context_vector(mlp_out))  ##  B * T * 1
         score = self.SM(self.context_vector(mlp_out))  ##  B * T * 1
-        # print("score_size", score.size())
-        # input_atten = input.mul(score)  ##  B * T * H
         input_atten = torch.mul(input, score)  ##  B * T * H
-        # print("input_atten_size", input_atten.size())
         att_out = torch.sum(input_atten, dim=1, keepdim=False)   ##  B * H
-        # print("att_out_size", att_out.size())
         return att_out
 
 

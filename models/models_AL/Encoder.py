@@ -48,8 +48,8 @@ class Encoder(nn.Module):
         self.bilstm = nn.LSTM(input_size=D, hidden_size=config.lstm_hiddens, num_layers=config.lstm_layers,
                               bidirectional=True, bias=True)
 
-        # self.hierachicalAtt = HierachicalAtten(in_size=config.lstm_hiddens * 2, attention_size=self.word_Att_size,
-        #                                        config=config)
+        self.hierachicalAtt = HierachicalAtten(in_size=config.lstm_hiddens * 2, attention_size=self.word_Att_size,
+                                               config=config)
 
     @staticmethod
     def prepare_pack_padded_sequence(inputs_words, seq_lengths, descending=True):
@@ -85,9 +85,11 @@ class Encoder(nn.Module):
         x, _ = self.bilstm(packed_embed)
         x, _ = pad_packed_sequence(x, batch_first=True)
         x = x[batch_features.desorted_indices]
-        x = x.permute(0, 2, 1)
-        x = F.max_pool1d(x, x.size(2)).squeeze(2)
-        # x = self.hierachicalAtt(x)
+        # use max pooling replace hierachical attention
+        # x = x.permute(0, 2, 1)
+        # x = F.max_pool1d(x, x.size(2)).squeeze(2)
+        # use hierachical attention replace max pooling
+        x = self.hierachicalAtt(x)
         # print(x.size())
         # exit()
 
